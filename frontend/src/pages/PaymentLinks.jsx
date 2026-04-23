@@ -30,7 +30,8 @@ const PaymentLinks = () => {
   }, []);
 
   const handleCopy = (orderId) => {
-    const link = `${window.location.origin}/pay/${orderId}`;
+    const baseUrl = import.meta.env.VITE_PAYMENT_LINK_BASE || window.location.origin;
+    const link = `${baseUrl}/pay/${orderId}`;
     navigator.clipboard.writeText(link);
     setCopiedId(orderId);
     setTimeout(() => setCopiedId(null), 2000);

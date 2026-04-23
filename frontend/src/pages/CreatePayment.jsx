@@ -3,7 +3,7 @@ import { ShoppingCart, DollarSign, Tag, Link as LinkIcon, Copy, CheckCircle, Arr
 import axios from 'axios';
 import api from '../services/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.VITE_API_URL || 'http://13.63.150.151:5000';
 
 const CreatePayment = () => {
   const [formData, setFormData] = useState({
@@ -60,7 +60,8 @@ const CreatePayment = () => {
       });
 
       const { id } = response.data;
-      const link = `${window.location.origin}/pay/${id}`;
+      const baseUrl = import.meta.env.VITE_PAYMENT_LINK_BASE || window.location.origin;
+      const link = `${baseUrl}/pay/${id}`;
       setPaymentLink(link);
     } catch (err) {
       console.error(err);

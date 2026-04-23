@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, Copy, CheckCircle2, Layers, ArrowRight } from 'lucide-react';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import api from '../services/api';
 
 const MerchantRegister = () => {
   const [form, setForm] = useState({ email: '', password: '', companyName: '', webhookUrl: '', walletAddress: '' });
@@ -19,16 +18,10 @@ const MerchantRegister = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${API}/api/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form)
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Registration failed');
+      const { data } = await api.post('/auth/register', form);
       setResult(data);
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

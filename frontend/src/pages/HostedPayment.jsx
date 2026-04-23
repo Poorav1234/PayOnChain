@@ -3,8 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { ethers } from 'ethers';
 import { Layers, CheckCircle2, AlertCircle, Wallet, ShieldCheck, Lock, ArrowRight, ExternalLink, Info, ChevronRight } from 'lucide-react';
 import PayOnChainABI from '../contracts/PayOnChain.json';
-
-const API = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+import api from '../services/api';
 
 const HostedPayment = () => {
   const { orderId } = useParams();
@@ -22,12 +21,10 @@ const HostedPayment = () => {
 
   const fetchOrder = async () => {
     try {
-      const res = await fetch(`${API}/api/payments/order/${orderId}`);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const { data } = await api.get(`/payments/order/${orderId}`);
       setOrder(data);
     } catch (err) {
-      setErrorMsg(err.message || 'Order not found');
+      setErrorMsg(err.response?.data?.error || err.message || 'Order not found');
     } finally {
       setLoadingOrder(false);
     }
@@ -78,14 +75,7 @@ const HostedPayment = () => {
 
       await tx.wait(1);
 
-      const verifyRes = await fetch(`${API}/api/payments/verify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ txHash: tx.hash, orderId })
-      });
-      const verifyData = await verifyRes.json();
-
-      if (!verifyRes.ok) throw new Error(verifyData.details || verifyData.error || 'Verification failed');
+      await api.post('/payments/verify', { txHash: tx.hash, orderId });
 
       setStatus('success');
     } catch (err) {

@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, Layers } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-
-const API = 'http://localhost:5000';
+import api from '../services/api';
 
 const MerchantLogin = () => {
   const [identifier, setIdentifier] = useState('');
@@ -18,17 +17,11 @@ const MerchantLogin = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${API}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ identifier, password })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
+      const { data } = await api.post('/auth/login', { identifier, password });
       merchantLogin(data.token, data.merchantId);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.error || err.message || 'Login failed');
     } finally {
       setLoading(false);
     }
